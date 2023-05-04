@@ -1,3 +1,3 @@
 import streamlit as stl
 
-stl.text("Hello, world!")
+stl.title("תרגום שפת הסימנים לטקסט")
