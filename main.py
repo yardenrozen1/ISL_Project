@@ -1,3 +1,3 @@
 import streamlit as stl
 
-stl.
+stl.text("Hello, world!")
