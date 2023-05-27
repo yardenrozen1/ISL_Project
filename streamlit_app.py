@@ -73,9 +73,9 @@ st.title("זיהוי שפת הסימנים")
 select = st.selectbox("בחר מודל"
              ,["CNN12 Model", "ResNet Model"])
 if select == "CNN12 Model":
-    model = tf.keras.models.load_model(r"C:\Users\97254\PycharmProjects\ISL_Project\modle1_CNN12_1.h5")
+    model = tf.keras.models.load_model(r"modle1_CNN12_1.h5")
 else:
-    model = tf.keras.models.load_model(r"C:\Users\97254\PycharmProjects\ISL_Project\modle2_inception1.h5")
+    model = tf.keras.models.load_model(r"modle2_inception1.h5")
 
 mphands = mp.solutions.hands
 hands = mphands.Hands()
