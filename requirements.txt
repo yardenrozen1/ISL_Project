@@ -1,4 +1,3 @@
-pip==23.1.2
 opencv-python
 streamlit
 mediapipe
