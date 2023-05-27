@@ -1,0 +1,7 @@
+opencv==4.7.0.72
+streamlit==1.12.2
+mediapipe==0.9.3.0
+matplotlib==3.6.1
+tensorflow==3.2.1
+numpy==1.23.3
+Pillow==9.2.0
