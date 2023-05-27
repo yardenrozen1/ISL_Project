@@ -1,7 +1,7 @@
-opencv-learn
-streamlit-leran
-mediapipe-leran
-matplotlib-leran
-tensorflow-leran
-numpy-leran
-Pillow-leran
+opencv
+streamlit
+mediapipe
+matplotlib
+tensorflow
+numpy
+Pillow
