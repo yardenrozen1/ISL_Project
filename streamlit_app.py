@@ -6,35 +6,40 @@ import tensorflow as tf
 import numpy as np
 from PIL import ImageFont, ImageDraw, Image
 
-s1 = st.empty()
-s2 = st.empty()
-s3 = st.empty()
-s4 = st.empty()
-s5 = st.empty()
-s6 = st.empty()
-s7 = st.empty()
 imgDim =128
 def pred_letter(img ,select):
-    #img = img[2, :, :]
-    s1.image(img)
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    s2.image(img)
-    img = cv2.GaussianBlur(img, (5, 5), 3)
-    s3.image(img)
-    img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
-    s4.image(img)
-    ret, img = cv2.threshold(img, 25, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-    s5.image(img)
+    try:
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    except:
+        return 24
+    else:
+        img = cv2.GaussianBlur(img, (5, 5), cv2.BORDER_CONSTANT)
+        img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+        if (img.shape[0] > img.shape[1]):
+            whiteDim = img.shape[0]
+            whiteImg = np.ones((whiteDim, whiteDim), np.uint8) * 255
+            move = int((whiteDim - img.shape[1]) / 2)
+            whiteImg[0:img.shape[0], move: img.shape[1] + move] = img
+            img = whiteImg
 
-    img = cv2.resize(img, (imgDim, imgDim))
-    img = np.float32(img) / 255.
-    img = np.expand_dims(img, axis=-1)
-    img = np.expand_dims(img, axis=0)
+        elif (img.shape[0] < img.shape[1]):
+            whiteDim = img.shape[1]
+            whiteImg = np.ones((whiteDim, whiteDim), np.uint8) * 255
+            move = int((whiteDim - img.shape[0]) / 2)
+            whiteImg[move:img.shape[0] + move, 0: img.shape[1]] = img
+            img = whiteImg
+        if select == "ResNet Model":
+            img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+        img = cv2.resize(img, (imgDim, imgDim))
+        img = np.float32(img) / 255.
+        img = np.expand_dims(img, axis=-1)
+        img = np.expand_dims(img, axis=0)
 
 
-    pred = model.predict(img)
-    print(pred.argmax(axis = 1)[0])
-    return pred.argmax(axis = 1)[0]
+        pred = model.predict(img)
+        print(pred)
+        print(pred.argmax(axis = 1))
+        return pred.argmax(axis = 1)[0]
 
 def is_final_letter(q):
     l = ("מ","נ","כ","פ","צ")
@@ -53,13 +58,13 @@ def write_sentence(sentence, pred):
                     sentence += c
                 sentence += "_"
         else:
-            if len(sentence) > 0 and sentence[-1] == "_":
-                sentence = sentence[:-1]
-                sentence += " "
-            elif pred == 23:
+            if pred == 23:
                 if len(sentence) > 0:
                     sentence = sentence[:-1]
             else:
+                if len(sentence) > 0 and sentence[-1] == "_":
+                    sentence = sentence[:-1]
+                    sentence += " "
                 l = "א ב ג ד ה ו ז ח ט י כ ל מ נ ס ע פ צ ק ר ש ת".split()
                 print(l)
                 c = l[pred]
@@ -73,9 +78,9 @@ st.title("זיהוי שפת הסימנים")
 select = st.selectbox("בחר מודל"
              ,["CNN12 Model", "ResNet Model"])
 if select == "CNN12 Model":
-    model = tf.keras.models.load_model(r"C:\Users\97254\PycharmProjects\ISL_Project\modle1_CNN12_1.h5")
+    model = tf.keras.models.load_model(r"modle1_CNN12_1.h5")
 else:
-    model = tf.keras.models.load_model(r"C:\Users\97254\PycharmProjects\ISL_Project\modle2_inception1.h5")
+    model = tf.keras.models.load_model(r"modle2_inception1.h5")
 
 mphands = mp.solutions.hands
 hands = mphands.Hands()
@@ -123,19 +128,6 @@ while camera.isOpened():
 
             img = frame[y_min - 25: y_max + 25, x_min - 25: x_max + 25]
 
-            if(img.shape[0] > img.shape[1]):
-                whiteDim = img.shape[0]
-                whiteImg = np.ones((whiteDim,whiteDim,3), np.uint8) * 169
-                move = int((whiteDim - img.shape[1])/2)
-                whiteImg[0:img.shape[0],move: img.shape[1] + move] = img
-                img = whiteImg
-
-            elif (img.shape[0] < img.shape[1]):
-                whiteDim = img.shape[1]
-                whiteImg = np.ones((whiteDim, whiteDim, 3), np.uint8) * 169
-                move = int((whiteDim - img.shape[0]) / 2)
-                whiteImg[move:img.shape[0] + move, 0: img.shape[1]] = img
-                img = whiteImg
 
             pred = pred_letter(img, select)
             x_diff = x_max - x_min
@@ -150,16 +142,18 @@ while camera.isOpened():
                     counter = 0
             else:
                 last = pred
-            if pred < len(otiyot):
-                tx = otiyot[pred]
             if pred == 22:
                 tx = "רווח"
-            else:
+            elif pred == 23:
                 tx = "מחק"
-            img_pil = Image.fromarray(img)
+            elif pred == 24:
+                tx = ""
+            else:
+               tx = otiyot[pred]
+            img_pil = Image.fromarray(frame)
             draw = ImageDraw.Draw(img_pil)
-            draw.text((2, 2),tx, font = font)
-            img = np.array(img_pil)
+            draw.text((x_min-20, y_min -20),tx, font = font, align = "right")
+            frame = np.array(img_pil)
     FRAME_WINDOW.image(frame)
 
 
