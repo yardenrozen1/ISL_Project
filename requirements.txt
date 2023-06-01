@@ -1,5 +1,4 @@
-pip==23.1.2
-opencv-python
+opencv-python-headless
 streamlit
 mediapipe
 matplotlib
