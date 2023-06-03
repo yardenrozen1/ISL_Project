@@ -1,0 +1,7 @@
+cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+cv2.GaussianBlur(img, (5, 5), cv2.BORDER_CONSTANT)
+cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+cv2.resize(img, (imgDim, imgDim))
+cv2.VideoCapture(0)
+cv2.flip(frame,1)
+cv2.rectangle(frame, (x_min - 25 , y_min - 25), (x_max + 25 , y_max + 25), (0, 255, 0), 2)
